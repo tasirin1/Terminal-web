@@ -35,6 +35,9 @@ jadi tetap jalan di jaringan yang memblokir jsdelivr/unpkg.
 - **Font bisa diatur** — `A−` / `A+` atau cubit dua jari (10–30 px), tersimpan di browser.
 - **Tata letak mengikuti keyboard** — memakai `visualViewport`, jadi bar tombol tidak
   tertutup keyboard layar; safe-area iPhone ikut diperhitungkan.
+- **Sesi tahan refresh** — shell dijalankan di dalam `tmux`, jadi refresh halaman,
+  pindah aplikasi, atau jaringan putus **tidak** menghapus riwayat dan proses yang
+  sedang berjalan. Sambung ulang → layar digambar ulang oleh tmux.
 - **Auto-reconnect** — kalau koneksi putus, UI menyambung ulang otomatis (ketuk teks
   status untuk mencoba lagi sekarang).
 - **Tombol "ke bawah"** muncul saat kamu menggulir ke atas.
@@ -51,6 +54,7 @@ jadi tetap jalan di jaringan yang memblokir jsdelivr/unpkg.
 | `web/style.css` | Tema gelap + tata letak layar sentuh |
 | `web/vendor/` | xterm.js, addon-fit, xterm.css (MIT) |
 | `tools/build_index.py` | Menggabungkan semuanya jadi satu `index.html` |
+| `tmux.conf` | Konfigurasi sesi persisten (riwayat 20.000 baris, mouse, status bar) |
 | `.github/workflows/docker.yml` | Build & push image ke `ghcr.io/tasirin1/terminal-web` |
 | `bashrc` | Prompt berwarna + alias untuk user container |
 | `docker-compose.yml` | Menjalankan lokal dengan mudah |
@@ -166,10 +170,23 @@ Health check default Koyeb memakai **TCP** pada port yang di-expose, jadi basic-
 | `TERM_NO_AUTH` | `0` | `1` = matikan autentikasi (jangan, kecuali jaringan internal) |
 | `TERM_BASE_PATH` | *(kosong)* | Taruh terminal di path rahasia, mis. `/t-9f3a2` |
 | `TERM_MAX_CLIENTS` | `3` | Jumlah tab terminal bersamaan |
+| `TERM_TMUX` | `1` | `0` = matikan sesi persisten (tiap refresh = shell baru) |
+| `TERM_SESSION` | `main` | Nama sesi tmux; ganti kalau ingin shell terpisah |
 | `TERM_SHELL` | `/bin/bash` | Shell yang dijalankan |
 | `TERM_INDEX` | `/opt/ttyd/index.html` | Halaman UI |
 
 Contoh: `TERM_BASE_PATH=/t-9f3a2` → URL jadi `https://….koyeb.app/t-9f3a2`.
+
+### Sesi & tmux
+
+- Semua tab/perangkat menempel ke **satu** sesi tmux (`main`), jadi layar dan prosesnya
+  sama — mulai di HP, lanjut di laptop, tanpa kehilangan konteks.
+- `exit` di terminal menutup sesi; koneksi berikutnya membuat sesi bersih.
+- Mau shell terpisah (mis. satu untuk `htop`, satu untuk ngoding)? Jalankan
+  `tmux new -s kerja` di dalam terminal, atau deploy instance kedua dengan
+  `TERM_SESSION=kerja`.
+- Sesi **tetap hilang** kalau container/instance di-restart (disk serverless ephemeral),
+  tapi tidak hilang hanya karena refresh/pindah aplikasi/jaringan putus.
 
 ## Keamanan — baca ini
 
@@ -203,6 +220,9 @@ Contoh: `TERM_BASE_PATH=/t-9f3a2` → URL jadi `https://….koyeb.app/t-9f3a2`.
 | Halaman putih | Lihat konsol browser; pastikan `dist/index.html`/image ter-build (aset inline) |
 | Login muncul terus | Password salah, atau pakai `:` di password (tidak didukung basic-auth) |
 | Terminal read-only | Opsi `-W` hilang — jangan hapus dari `start.sh` |
+| Refresh menghapus shell & riwayat | Pastikan `TERM_TMUX=1` (default) dan image memuat `tmux`; cek log `[start] sesi persisten aktif` |
+| Geser ke atas tidak menampilkan riwayat | Itu copy-mode tmux: geser/`PgUp`, keluar dengan `Esc` atau `q` |
+| Dua tab saling “bertabrakan” ketikan | Normal — keduanya menempel ke sesi tmux yang sama. Set `TERM_SESSION` berbeda untuk sesi terpisah |
 | Putus tiap beberapa menit | Instance di-scale-to-zero / idle; set `min-scale = max-scale = 1` |
 | Lupa password | Set ulang `TERM_PASS` lalu redeploy, atau cek log (password acak dicetak) |
 

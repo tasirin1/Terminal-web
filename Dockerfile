@@ -54,8 +54,9 @@ RUN useradd --create-home --shell /bin/bash --uid 1000 dev \
 COPY --from=build /out/index.html /opt/ttyd/index.html
 COPY start.sh /usr/local/bin/start.sh
 COPY bashrc /home/dev/.bashrc
+COPY tmux.conf /home/dev/.tmux.conf
 RUN chmod 0755 /usr/local/bin/start.sh \
- && chown dev:dev /home/dev/.bashrc
+ && chown dev:dev /home/dev/.bashrc /home/dev/.tmux.conf
 
 USER dev
 WORKDIR /home/dev
