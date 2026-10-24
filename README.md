@@ -83,6 +83,14 @@ ttyd -p 8000 -W -c admin:rahasia -I dist/index.html bash
 
 Instance `free` Koyeb (0.1 vCPU / 512 MB RAM) sudah lebih dari cukup untuk ttyd.
 
+> **Penting: builder harus `Dockerfile`, bukan `Buildpack`.**
+> Repo ini bukan aplikasi Node/PHP/Go — isinya cuma Dockerfile. Kalau Koyeb memakai
+> Buildpack, build akan gagal dengan pesan
+> `ERROR: No buildpack groups passed detection` / `failed to detect: no buildpacks participating`.
+> Ubah di **Service → Settings → Build → Builder → Dockerfile** (lokasi `Dockerfile`),
+> lalu **Redeploy**. Kalau opsi itu tidak muncul, hapus Service dan buat ulang dengan
+> builder Dockerfile.
+
 ### Lewat panel (GitHub)
 
 1. Repo ini sudah siap — tidak perlu ubah apa pun. Cara tercepat: klik tombol
@@ -169,6 +177,7 @@ Contoh: `TERM_BASE_PATH=/t-9f3a2` → URL jadi `https://….koyeb.app/t-9f3a2`.
 
 | Gejala | Solusi |
 |---|---|
+| `No buildpack groups passed detection` / `failed to detect: no buildpacks participating` | Builder masih **Buildpack**. Ganti ke **Dockerfile** (Settings → Build → Builder), lokasi `Dockerfile`, lalu Redeploy |
 | `502` / service `Unhealthy` | Port di panel harus sama dengan `PORT` (8000); ttyd harus dengar di `0.0.0.0` |
 | Halaman putih | Lihat konsol browser; pastikan `dist/index.html`/image ter-build (aset inline) |
 | Login muncul terus | Password salah, atau pakai `:` di password (tidak didukung basic-auth) |
