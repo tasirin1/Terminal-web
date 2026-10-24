@@ -1,0 +1,58 @@
+name: Build container image
+
+# Dibangun di GitHub Actions, lalu Koyeb cukup menarik image-nya.
+# Tidak ada buildpack yang terlibat, jadi tidak ada "No buildpack groups passed detection".
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "README.md"
+      - "LICENSE"
+      - ".github/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Hitung nama image (registry wajib huruf kecil)
+        run: echo "IMAGE=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_ENV"
+
+      - name: Setup Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login ke GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64
+          push: true
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.description=Terminal web ttyd ramah layar sentuh
+          tags: |
+            ${{ env.IMAGE }}:latest
+            ${{ env.IMAGE }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Ringkasan
+        run: |
+          echo "Image siap: \`${{ env.IMAGE }}:latest\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Deploy di Koyeb: **Create Service → Docker** → image di atas, port 8000." >> "$GITHUB_STEP_SUMMARY"
