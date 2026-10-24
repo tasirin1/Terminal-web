@@ -1,0 +1,13 @@
+services:
+  terminal:
+    build: .
+    image: terminal-web
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      PORT: "8000"
+      TERM_USER: admin
+      TERM_PASS: ganti-password-ini
+      # TERM_BASE_PATH: /t-9f3a2   # taruh terminal di path rahasia
+      # TERM_MAX_CLIENTS: "3"

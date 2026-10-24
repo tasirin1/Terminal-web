@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Terminal">
+<meta name="theme-color" content="#0f1218">
+<meta name="description" content="Terminal web ttyd yang ramah layar sentuh">
+<title>Terminal</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f1218'/%3E%3Cpath d='M16 22l10 10-10 10' stroke='%234f9cf9' stroke-width='6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M34 42h14' stroke='%233fb950' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+/*__XTERM_CSS__*/
+/*__STYLE_CSS__*/
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="bar">
+    <span id="dot"></span>
+    <span id="stat" title="Ketuk untuk menyambung ulang">menyambung…</span>
+    <span class="sp"></span>
+    <button id="btn-fminus" aria-label="Perkecil font">A−</button>
+    <button id="btn-fplus" aria-label="Perbesar font">A+</button>
+    <button id="btn-keys" aria-label="Sembunyikan atau tampilkan tombol" title="Sembunyikan / tampilkan tombol">⌨</button>
+  </div>
+
+  <div id="termwrap">
+    <div id="term"></div>
+    <div id="hint">Ketuk layar untuk mulai mengetik</div>
+    <button id="jump" aria-label="Gulir ke bawah" title="Ke bawah">▼</button>
+  </div>
+
+  <div id="keys">
+    <div id="pin">
+      <button id="btn-paste" aria-label="Tempel">Tempel</button>
+      <button id="btn-copy" aria-label="Salin">Salin</button>
+    </div>
+    <div id="keyrow">
+      <button data-seq="esc" aria-label="Escape">Esc</button>
+      <button data-seq="tab" aria-label="Tab">Tab</button>
+      <button data-seq="btab" aria-label="Shift Tab">⇧Tab</button>
+      <button class="mod" data-mod="ctrl" aria-label="Control">Ctrl</button>
+      <button class="mod" data-mod="alt" aria-label="Alt">Alt</button>
+      <span class="sep"></span>
+      <button data-seq="left" aria-label="Kiri">◀</button>
+      <button data-seq="up" aria-label="Atas">▲</button>
+      <button data-seq="down" aria-label="Bawah">▼</button>
+      <button data-seq="right" aria-label="Kanan">▶</button>
+      <span class="sep"></span>
+      <button data-seq="c-c" aria-label="Ctrl C">^C</button>
+      <button data-seq="c-d" aria-label="Ctrl D">^D</button>
+      <button data-seq="c-z" aria-label="Ctrl Z">^Z</button>
+      <button data-seq="c-l" aria-label="Ctrl L">^L</button>
+      <button data-seq="c-r" aria-label="Ctrl R">^R</button>
+      <button data-seq="c-u" aria-label="Ctrl U">^U</button>
+      <button data-seq="c-k" aria-label="Ctrl K">^K</button>
+      <button data-seq="c-w" aria-label="Ctrl W">^W</button>
+      <span class="sep"></span>
+      <button data-lit="|">|</button>
+      <button data-lit="~">~</button>
+      <button data-lit="/">/</button>
+      <button data-lit="-">-</button>
+      <span class="sep"></span>
+      <button data-seq="home">Home</button>
+      <button data-seq="end">End</button>
+      <button data-seq="pgup">PgUp</button>
+      <button data-seq="pgdn">PgDn</button>
+      <button data-seq="del">Del</button>
+    </div>
+  </div>
+</div>
+<div id="toast" role="status"></div>
+<noscript><p style="color:#e6edf3;padding:20px">JavaScript dibutuhkan untuk terminal ini.</p></noscript>
+
+<script>//__XTERM_JS__</script>
+<script>//__ADDON_FIT_JS__</script>
+<script>//__APP_JS__</script>
+</body>
+</html>
