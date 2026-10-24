@@ -3,6 +3,8 @@
 Terminal `bash` di browser yang **ramah layar sentuh** — dibuat untuk dipakai dari HP
 atau tablet, bukan cuma dari laptop.
 
+[![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/deploy?type=git&builder=dockerfile&repository=github.com/tasirin1/Terminal-web&branch=main&name=terminal-web&ports=8000;http;/&instance_type=free&env%5BTERM_USER%5D=admin)
+
 Dibangun dari [ttyd](https://github.com/tsl0922/ttyd) + [xterm.js](https://xtermjs.org/),
 dengan halaman UI sendiri yang sudah dioptimalkan untuk jari: tombol `Ctrl` `Esc` `Tab`
 panah `^C` dll. tersedia di layar, karena keyboard HP tidak punya tombol-tombol itu.
@@ -83,8 +85,9 @@ Instance `free` Koyeb (0.1 vCPU / 512 MB RAM) sudah lebih dari cukup untuk ttyd.
 
 ### Lewat panel (GitHub)
 
-1. Repo ini sudah siap — tidak perlu ubah apa pun.
-2. Masuk <https://app.koyeb.com> → **Create Service** → **GitHub**.
+1. Repo ini sudah siap — tidak perlu ubah apa pun. Cara tercepat: klik tombol
+   **Deploy to Koyeb** di atas, lalu isi `TERM_PASS` saat diminta.
+2. Atau manual: masuk <https://app.koyeb.com> → **Create Service** → **GitHub**.
 3. Pilih repo `tasirin1/Terminal-web`, branch `main`.
 4. **Builder**: `Dockerfile`, **Dockerfile location**: `Dockerfile`.
 5. **Exposed ports**: `8000`, **Public** ✔, protocol **HTTP**, path `/`.
