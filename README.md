@@ -3,7 +3,7 @@
 Terminal `bash` di browser yang **ramah layar sentuh** — dibuat untuk dipakai dari HP
 atau tablet, bukan cuma dari laptop.
 
-[![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/deploy?type=git&builder=dockerfile&repository=github.com/tasirin1/Terminal-web&branch=main&name=terminal-web&ports=8000;http;/&instance_type=free&env%5BTERM_USER%5D=admin)
+[![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/deploy?type=docker&image=ghcr.io/tasirin1/terminal-web:latest&name=terminal-web&ports=8000;http;/&instance_type=free&env%5BTERM_USER%5D=admin)
 
 Dibangun dari [ttyd](https://github.com/tsl0922/ttyd) + [xterm.js](https://xtermjs.org/),
 dengan halaman UI sendiri yang sudah dioptimalkan untuk jari: tombol `Ctrl` `Esc` `Tab`
@@ -51,6 +51,7 @@ jadi tetap jalan di jaringan yang memblokir jsdelivr/unpkg.
 | `web/style.css` | Tema gelap + tata letak layar sentuh |
 | `web/vendor/` | xterm.js, addon-fit, xterm.css (MIT) |
 | `tools/build_index.py` | Menggabungkan semuanya jadi satu `index.html` |
+| `.github/workflows/docker.yml` | Build & push image ke `ghcr.io/tasirin1/terminal-web` |
 | `bashrc` | Prompt berwarna + alias untuk user container |
 | `docker-compose.yml` | Menjalankan lokal dengan mudah |
 
@@ -83,36 +84,54 @@ ttyd -p 8000 -W -c admin:rahasia -I dist/index.html bash
 
 Instance `free` Koyeb (0.1 vCPU / 512 MB RAM) sudah lebih dari cukup untuk ttyd.
 
-> **Penting: builder harus `Dockerfile`, bukan `Buildpack`.**
-> Repo ini bukan aplikasi Node/PHP/Go — isinya cuma Dockerfile. Kalau Koyeb memakai
-> Buildpack, build akan gagal dengan pesan
-> `ERROR: No buildpack groups passed detection` / `failed to detect: no buildpacks participating`.
+Ada dua jalur. **Cara 1 tidak memakai builder Koyeb sama sekali**, jadi paling anti-gagal.
+Kalau kamu pernah melihat `ERROR: No buildpack groups passed detection`, berarti Koyeb
+sedang memakai builder **Buildpack** — pindah ke Cara 1 atau ubah builder ke Dockerfile.
+
+### Cara 1 — pakai image siap pakai (disarankan)
+
+Repo ini otomatis membangun image di GitHub Actions dan menyimpannya di GHCR:
+
+```
+ghcr.io/tasirin1/terminal-web:latest
+```
+
+1. Klik badge **Deploy to Koyeb** di atas — isinya sudah terisi: image, port `8000`,
+   instance `free`. Tinggal isi `TERM_PASS`.
+2. Atau manual: <https://app.koyeb.com> → **Create Service** → **Docker** →
+   **Image**: `ghcr.io/tasirin1/terminal-web:latest`.
+3. **Exposed ports**: `8000`, **Public** ✔, protocol **HTTP**, path `/`.
+4. **Environment variables**: `TERM_USER=admin`, `TERM_PASS=<password kuat>`.
+5. **Instance**: `Free` → **Deploy**.
+
+Cek image terbaru: tab **Actions** di repo ini, atau `docker pull ghcr.io/tasirin1/terminal-web:latest`.
+Koyeb tidak otomatis menarik image baru — klik **Redeploy** setelah Actions selesai.
+
+### Cara 2 — build langsung dari Dockerfile
+
+> **Builder harus `Dockerfile`, bukan `Buildpack`.** Repo ini bukan aplikasi
+> Node/PHP/Go, isinya cuma Dockerfile. Kalau Koyeb memakai Buildpack, build gagal dengan
+> `No buildpack groups passed detection` / `failed to detect: no buildpacks participating`.
 > Ubah di **Service → Settings → Build → Builder → Dockerfile** (lokasi `Dockerfile`),
-> lalu **Redeploy**. Kalau opsi itu tidak muncul, hapus Service dan buat ulang dengan
-> builder Dockerfile.
+> lalu **Redeploy**.
 
-### Lewat panel (GitHub)
+Langkah manual untuk Cara 2:
 
-1. Repo ini sudah siap — tidak perlu ubah apa pun. Cara tercepat: klik tombol
-   **Deploy to Koyeb** di atas, lalu isi `TERM_PASS` saat diminta.
-2. Atau manual: masuk <https://app.koyeb.com> → **Create Service** → **GitHub**.
-3. Pilih repo `tasirin1/Terminal-web`, branch `main`.
-4. **Builder**: `Dockerfile`, **Dockerfile location**: `Dockerfile`.
-5. **Exposed ports**: `8000`, **Public** ✔, protocol **HTTP**, path `/`.
-6. **Environment variables**:
+1. Masuk <https://app.koyeb.com> → **Create Service** → **GitHub**.
+2. Pilih repo `tasirin1/Terminal-web`, branch `main`.
+3. **Builder**: `Dockerfile` ← wajib, **Dockerfile location**: `Dockerfile`.
+4. **Exposed ports**: `8000`, **Public** ✔, protocol **HTTP**, path `/`.
+5. **Environment variables**: `TERM_USER=admin`, `TERM_PASS=<password kuat>`.
+6. **Instance**: `Free`, pilih region terdekat → **Deploy**.
+7. Setelah status *Healthy*, buka `https://<nama>-<org>.koyeb.app`, isi login,
+   lalu ketuk layar terminal → keyboard muncul.
 
-   | Name | Value |
-   |---|---|
-   | `TERM_USER` | `admin` |
-   | `TERM_PASS` | password kuat pilihanmu |
-
-7. **Instance**: `Free`, pilih region terdekat → **Deploy**.
-8. Setelah status *Healthy*, buka `https://<nama>-<org>.koyeb.app`, isi login.
-   Ketuk layar terminal → keyboard muncul.
-
-Setiap `git push` ke `main` akan otomatis memicu deploy ulang.
+Setiap `git push` ke `main` akan membangun image baru di Actions **dan** memicu deploy
+ulang — jadi kalau Cara 1 dipakai, cukup tekan **Redeploy** setelah build selesai.
 
 ### Lewat CLI
+
+`--archive-builder docker` memaksa builder Dockerfile, jadi aman dari deteksi buildpack.
 
 ```bash
 # sekali saja
@@ -177,7 +196,9 @@ Contoh: `TERM_BASE_PATH=/t-9f3a2` → URL jadi `https://….koyeb.app/t-9f3a2`.
 
 | Gejala | Solusi |
 |---|---|
-| `No buildpack groups passed detection` / `failed to detect: no buildpacks participating` | Builder masih **Buildpack**. Ganti ke **Dockerfile** (Settings → Build → Builder), lokasi `Dockerfile`, lalu Redeploy |
+| Log build penuh `heroku/*`, `koyeb/build-command*`, lalu `No buildpack groups passed detection` | Koyeb memakai builder **Buildpack**. Paling gampang: deploy **image** (`ghcr.io/tasirin1/terminal-web:latest`, Cara 1). Atau ubah builder ke **Dockerfile** lalu Redeploy |
+| `No buildpack groups passed detection` / `failed to detect: no buildpacks participating` | Sama seperti di atas — repo ini hanya punya Dockerfile, tidak ada `package.json`/`composer.json` |
+| Image `ghcr.io/...` gagal ditarik (`unauthorized`, `manifest unknown`) | Build Actions belum selesai, atau package masih privat. Buka GitHub → **Packages** → `terminal-web` → *Package settings* → ubah visibility ke **Public** |
 | `502` / service `Unhealthy` | Port di panel harus sama dengan `PORT` (8000); ttyd harus dengar di `0.0.0.0` |
 | Halaman putih | Lihat konsol browser; pastikan `dist/index.html`/image ter-build (aset inline) |
 | Login muncul terus | Password salah, atau pakai `:` di password (tidak didukung basic-auth) |

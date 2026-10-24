@@ -42,6 +42,7 @@ jobs:
           context: .
           platforms: linux/amd64
           push: true
+          provenance: false
           labels: |
             org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
             org.opencontainers.image.description=Terminal web ttyd ramah layar sentuh
